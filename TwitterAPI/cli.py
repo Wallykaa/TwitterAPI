@@ -35,6 +35,7 @@ __license__ = "MIT"
 import argparse
 import codecs
 import json
+from pprint import PrettyPrinter
 import sys
 from .TwitterOAuth import TwitterOAuth
 from .TwitterAPI import TwitterAPI
@@ -98,16 +99,10 @@ if __name__ == '__main__':
         nargs='+')
     parser.add_argument(
         '-fields',
-        metavar='NAME',
+        metavar='FIELD',
         type=str,
         help='print a top-level field in the json response',
         nargs='+')
-    parser.add_argument(
-        '-indent',
-        metavar='SPACES',
-        type=int,
-        help='number of spaces to indent json output',
-        default=None)
     args = parser.parse_args()
 
     try:
@@ -121,11 +116,12 @@ if __name__ == '__main__':
             oauth.access_token_secret)
         response = api.request(args.endpoint, params)
 
+        pp = PrettyPrinter()
         for item in response.get_iterator():
             if 'message' in item:
                 print('ERROR %s: %s' % (item['code'], item['message']))
             elif not args.fields:
-                print(json.dumps(item, ensure_ascii='False', indent=args.indent))  
+                print(json.dumps(item, ensure_ascii='False'))  
             else:
                 for name in args.fields:
                     value = _search(name, item)
